@@ -14,7 +14,11 @@ const  routes = [
       path: '/galaxy',
       name: 'Galaxy',
       component: GalaxyWorld
-    }
+    },
+    {
+      path :'*',
+      component:HelloWorld
+  }
   ]
 
 export default new Router({
