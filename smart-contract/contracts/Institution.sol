@@ -50,7 +50,7 @@ contract Institution is IInstitution, Ownable {
         uint256 sessionId;
         uint256 programId;
         string ipfsUrl;
-        address Owner;
+        address owner;
     }
 
     struct Application {
@@ -219,5 +219,49 @@ contract Institution is IInstitution, Ownable {
         validAddress(_address)
     {
         institutionWallet = payable(_address);
+    }
+
+    function unverifiedApplications()
+        public
+        view
+        returns (Application[] memory data)
+    {
+        Application[] memory tmp = new Application[](totalApplication);
+
+        uint256 count = 0;
+        for (uint256 i = 1; i <= totalApplication; i++) {
+            Application memory application = applications[i];
+            if (application.verified == false) {
+                tmp[count] = application;
+                count += 1;
+            }
+        }
+        Application[] memory data = new Application[](count);
+        for (uint256 i = 0; i < count; i++) {
+            data[i] = tmp[i];
+        }
+        return data;
+    }
+
+    function ownerOfCertificates(address _address)
+        public
+        view
+        returns (Certificate[] memory data)
+    {
+        Certificate[] memory tmp = new Certificate[](totalCertificate);
+
+        uint256 count = 0;
+        for (uint256 i = 1; i <= totalCertificate; i++) {
+            Certificate memory certificate = certificates[i];
+            if (certificate.owner == _address) {
+                tmp[count] = certificate;
+                count += 1;
+            }
+        }
+        Certificate[] memory data = new Certificate[](count);
+        for (uint256 i = 0; i < count; i++) {
+            data[i] = tmp[i];
+        }
+        return data;
     }
 }

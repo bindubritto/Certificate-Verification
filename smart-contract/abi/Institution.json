@@ -289,7 +289,7 @@
       },
       {
         "internalType": "address",
-        "name": "Owner",
+        "name": "owner",
         "type": "address"
       }
     ],
@@ -349,6 +349,62 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "ownerOfCertificates",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "roll",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "registrationNo",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sessionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "programId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "ipfsUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct Institution.Certificate[]",
+        "name": "data",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -511,6 +567,61 @@
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unverifiedApplications",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "roll",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "registrationNo",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sessionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "programId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "ipfsUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "applicant",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "verified",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct Institution.Application[]",
+        "name": "data",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
