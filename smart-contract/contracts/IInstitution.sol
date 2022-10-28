@@ -19,7 +19,7 @@ interface IInstitution {
         uint256 _sessionId,
         uint256 _programId,
         string memory _ipfsUrl
-    ) external;
+    ) external payable;
 
     function verifyCertificate(uint256 _applicationId) external;
 
