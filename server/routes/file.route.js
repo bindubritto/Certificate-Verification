@@ -1,10 +1,12 @@
 // imports
 const express = require('express');
-const createErrors = require('http-errors');
 const fileController = require('../controllers/file.controller');
 
+// constants
+const router = express.Router();
+
 // endpoints
-router.post('/', validateUserReq, fileController.uploadFile);
+router.post('/', fileController.uploadFile);
 
 
 // exports

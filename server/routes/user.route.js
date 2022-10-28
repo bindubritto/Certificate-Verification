@@ -1,6 +1,5 @@
 // imports
 const express = require('express');
-const createErrors = require('http-errors');
 const userCtrl = require('../controllers/user.controller');
 const {
     validateUserReq,

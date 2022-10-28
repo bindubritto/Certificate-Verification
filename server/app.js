@@ -1,14 +1,18 @@
 // imports
 const express = require('express');
 const createErrors = require('http-errors');
+const fileUpload = require("express-fileupload");
 const cors = require('cors');
 
 // imporitng routes
 const userRoute = require('./routes/user.route');
+const fileRoute = require('./routes/file.route');
 
 // constants
 const app = express();
-
+app.use(
+    fileUpload()
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
@@ -21,6 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/user', userRoute);
+app.use('/api/v1/file', fileRoute);
 
 // handle wildcard route
 app.use(async(req, res, next) => {
