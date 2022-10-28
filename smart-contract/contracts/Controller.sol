@@ -39,17 +39,28 @@ contract Controller is Ownable {
     }
 
     struct InstitutionInfo {
+        uint256 id;
         address contractAddres;
         string name;
     }
 
     IInstitution public institutionSc;
+    uint256 public totalInstitution = 0;
 
     mapping(address => bool) public moderators;
 
     mapping(uint256 => InstitutionInfo) public InstitutionInfos;
 
     constructor() {}
+
+    function addInstitution(address contractAddres,string memory name) external validModerator(msg.sender) validAddress(contractAddres) {
+        totalInstitution ++;
+        InstitutionInfos[totalInstitution] = InstitutionInfo (
+            totalInstitution,
+            contractAddres,
+            name
+        );
+    }
 
     function addSessions(
         uint256 _startTimestamp,

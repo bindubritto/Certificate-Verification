@@ -37,7 +37,7 @@ contract Institution is IInstitution, Ownable {
     }
 
     modifier onlyIssuer(address _address) {
-        if (_address != issuerContractAddress) {
+        if (_address != controllerContractAddress) {
             revert InvalidVerifier();
         }
         _;
@@ -54,6 +54,7 @@ contract Institution is IInstitution, Ownable {
     }
 
     struct Application {
+        uint256 id;
         string name;
         uint256 roll;
         uint256 registrationNo;
@@ -77,7 +78,7 @@ contract Institution is IInstitution, Ownable {
     mapping(address => bool) public institutionVerifiers;
 
     address payable public institutionWallet;
-    address public issuerContractAddress;
+    address public controllerContractAddress;
 
     uint256 public totalProgram = 0;
     uint256 public totalSession = 0;
@@ -100,7 +101,7 @@ contract Institution is IInstitution, Ownable {
         address payable _institutionWallet
     ) {
         institutionWallet = payable(_institutionWallet);
-        issuerContractAddress = _issuerContractAddress;
+        controllerContractAddress = _issuerContractAddress;
     }
 
     function applyForCertificate(
@@ -127,6 +128,7 @@ contract Institution is IInstitution, Ownable {
         totalApplication++;
 
         applications[totalApplication] = Application(
+            totalApplication,
             _name,
             _roll,
             _registrationNo,
@@ -210,7 +212,7 @@ contract Institution is IInstitution, Ownable {
         onlyOwner
         validAddress(_address)
     {
-        issuerContractAddress = _address;
+        controllerContractAddress = _address;
     }
 
     function resetInstitutionWallet(address _address)
