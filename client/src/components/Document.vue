@@ -85,7 +85,8 @@
 
 <script>
 import Form from "../utils/form";
-import makeRequest from "../utils/apiRequest";
+//import makeRequest from "../utils/apiRequest";
+import getInstituteContract from "../utils/contract";
 
 export default {
   name: "DocumentComponent",
@@ -122,34 +123,50 @@ export default {
       }
     },
 
-    async checkFormx(event) {
+    async checkForm(event) {
       event.preventDefault();
 
-      const formData = new FormData();
+      let instituteContract = await getInstituteContract();
+      //let applicationperWallet = await instituteContract.applicationperWallet();
 
-      formData.append("name", this.form.name);
-      formData.append("roll", this.form.roll);
-      formData.append("session", this.form.session);
-      formData.append("university_token", this.form.university_token);
-      formData.append("certificate_image", this.form.certificate_image);
-      try {
-        const result = await makeRequest({
-          url: process.env.VUE_APP_HERMES_API_BASE_URL,
-          method: "post",
-          data: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        console.log(result);
-      } catch (error) {
-        console.log("error");
-        throw error;
-      }
+      let transactionInformation = await instituteContract.applyForCertificate(
+        "Atiq Ahammed",
+        817,
+        12345,
+        1,
+        1,
+        "https://test.url.com"
+      );
+
+      console.log(transactionInformation)
+
+      //console.log(Number(applicationperWallet));
+
+      // const formData = new FormData();
+
+      // formData.append("name", this.form.name);
+      // formData.append("roll", this.form.roll);
+      // formData.append("session", this.form.session);
+      // formData.append("university_token", this.form.university_token);
+      // formData.append("certificate_image", this.form.certificate_image);
+      // try {
+      //   const result = await makeRequest({
+      //     url: process.env.VUE_APP_HERMES_API_BASE_URL,
+      //     method: "post",
+      //     data: formData,
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   });
+      //   console.log(result);
+      // } catch (error) {
+      //   console.log("error");
+      //   throw error;
+      // }
     },
 
     // Example POST method implementation:
-    async checkForm(event) {
+    async checkFormx(event) {
       event.preventDefault();
 
       var formData = new FormData();
