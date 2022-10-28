@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import "./IInstitution.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 error InvalidProgram();
@@ -13,7 +14,7 @@ error InvalidAddress();
 error InvalidIssuer();
 error AlreadyVerified();
 
-contract Institution is Ownable {
+contract Institution is IInstitution, Ownable {
     modifier validAddress(address _address) {
         if (_address == address(0) || _address == address(this)) {
             revert InvalidAddress();
@@ -29,14 +30,14 @@ contract Institution is Ownable {
     }
 
     modifier validVarifier(address _address) {
-        if (!InstitutionVerifiers[_address]) {
+        if (!institutionVerifiers[_address]) {
             revert InvalidVerifier();
         }
         _;
     }
 
     modifier onlyIssuer(address _address) {
-        if (_address != IssuerContractAddress) {
+        if (_address != issuerContractAddress) {
             revert InvalidVerifier();
         }
         _;
@@ -73,17 +74,17 @@ contract Institution is Ownable {
         uint256 endTimestamp;
     }
 
-    mapping(address => bool) public InstitutionVerifiers;
+    mapping(address => bool) public institutionVerifiers;
 
-    address payable public InstitutionWallet;
-    address public IssuerContractAddress;
+    address payable public institutionWallet;
+    address public issuerContractAddress;
 
     uint256 public totalProgram = 0;
     uint256 public totalSession = 0;
     uint256 public totalCertificate = 0;
     uint256 public totalApplication = 0;
 
-    uint256 public ApplicationperWallet = 10;
+    uint256 public applicationperWallet = 10;
 
     mapping(uint256 => Session) public sessions;
 
@@ -98,8 +99,8 @@ contract Institution is Ownable {
         address _issuerContractAddress,
         address payable _institutionWallet
     ) {
-        InstitutionWallet = payable( _institutionWallet);
-        IssuerContractAddress = _issuerContractAddress;
+        institutionWallet = payable(_institutionWallet);
+        issuerContractAddress = _issuerContractAddress;
     }
 
     function applyForCertificate(
@@ -118,7 +119,7 @@ contract Institution is Ownable {
             revert InvalidSession();
         }
 
-        if (applicationPerWalletMapping[msg.sender] == 10) {
+        if (applicationPerWalletMapping[msg.sender] == applicationperWallet) {
             revert ApplicationLimitExceeded();
         }
 
@@ -193,7 +194,7 @@ contract Institution is Ownable {
         validAddress(_verifier)
         onlyIssuer(msg.sender)
     {
-        InstitutionVerifiers[_verifier] = true;
+        institutionVerifiers[_verifier] = true;
     }
 
     function removeVerifier(address _verifier)
@@ -201,7 +202,7 @@ contract Institution is Ownable {
         validAddress(_verifier)
         onlyIssuer(msg.sender)
     {
-        InstitutionVerifiers[_verifier] = false;
+        institutionVerifiers[_verifier] = false;
     }
 
     function resetIssuerContractAddress(address _address)
@@ -209,7 +210,7 @@ contract Institution is Ownable {
         onlyOwner
         validAddress(_address)
     {
-        IssuerContractAddress = _address;
+        issuerContractAddress = _address;
     }
 
     function resetInstitutionWallet(address _address)
@@ -217,6 +218,6 @@ contract Institution is Ownable {
         onlyOwner
         validAddress(_address)
     {
-        InstitutionWallet = payable(_address);
+        institutionWallet = payable(_address);
     }
 }
