@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 error InvalidProgram();
 error InvalidSession();
 error InvalidVerifier();
@@ -8,9 +10,10 @@ error InvalidApplicationId();
 error ApplicationLimitExceeded();
 error ValueCanNotBeZero();
 error InvalidAddress();
+error InvalidIssuer();
 error AlreadyVerified();
 
-contract Institution {
+contract Institution is Ownable {
     modifier validAddress(address _address) {
         if (_address == address(0) || _address == address(this)) {
             revert InvalidAddress();
@@ -27,6 +30,13 @@ contract Institution {
 
     modifier validVarifier(address _address) {
         if (!InstitutionVerifiers[_address]) {
+            revert InvalidVerifier();
+        }
+        _;
+    }
+
+    modifier onlyIssuer(address _address) {
+        if (_address != IssuerContractAddress) {
             revert InvalidVerifier();
         }
         _;
@@ -66,6 +76,7 @@ contract Institution {
     mapping(address => bool) public InstitutionVerifiers;
 
     address payable public InstitutionWallet;
+    address public IssuerContractAddress;
 
     uint256 public totalProgram = 0;
     uint256 public totalSession = 0;
@@ -83,7 +94,13 @@ contract Institution {
 
     mapping(address => uint256) public applicationPerWalletMapping;
 
-    constructor() {}
+    constructor(
+        address _issuerContractAddress,
+        address payable _institutionWallet
+    ) {
+        InstitutionWallet = payable( _institutionWallet);
+        IssuerContractAddress = _issuerContractAddress;
+    }
 
     function applyForCertificate(
         string memory _name,
@@ -121,7 +138,7 @@ contract Institution {
     }
 
     function verifyCertificate(uint256 _applicationId)
-        public
+        external
         validVarifier(msg.sender)
         notZero(_applicationId)
     {
@@ -150,20 +167,56 @@ contract Institution {
     }
 
     function addSessions(uint256 _startTimestamp, uint256 _endTimestamp)
-        public
+        external
+        onlyIssuer(msg.sender)
     {
+        if (_startTimestamp >= _endTimestamp) {
+            revert InvalidSession();
+        }
         totalSession++;
 
         sessions[totalSession] = Session(_startTimestamp, _endTimestamp);
     }
 
-    function addProgram(string memory _name, uint256 _duration) public {
+    function addProgram(string memory _name, uint256 _duration)
+        external
+        onlyIssuer(msg.sender)
+        notZero(_duration)
+    {
         totalProgram++;
 
         programs[totalProgram] = Program(_name, _duration);
     }
 
-    function addVerifier(address _verifier) public validAddress(_verifier) {
+    function addVerifier(address _verifier)
+        external
+        validAddress(_verifier)
+        onlyIssuer(msg.sender)
+    {
         InstitutionVerifiers[_verifier] = true;
+    }
+
+    function removeVerifier(address _verifier)
+        external
+        validAddress(_verifier)
+        onlyIssuer(msg.sender)
+    {
+        InstitutionVerifiers[_verifier] = false;
+    }
+
+    function resetIssuerContractAddress(address _address)
+        external
+        onlyOwner
+        validAddress(_address)
+    {
+        IssuerContractAddress = _address;
+    }
+
+    function resetInstitutionWallet(address _address)
+        external
+        onlyOwner
+        validAddress(_address)
+    {
+        InstitutionWallet = payable(_address);
     }
 }
