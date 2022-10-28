@@ -136,8 +136,8 @@ contract Institution {
         }
 
         totalCertificate++;
-        applicationPerWalletMapping[msg.sender]--;
-        applications[_applicationId].Verified = true; 
+        applicationPerWalletMapping[application.Applicant]--;
+        applications[_applicationId].Verified = true;
         certificates[totalCertificate] = Certificate(
             application.Name,
             application.Roll,
@@ -145,7 +145,7 @@ contract Institution {
             application.SessionId,
             application.ProgramId,
             application.IpfsUrl,
-            msg.sender
+            application.Applicant
         );
     }
 
