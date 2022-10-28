@@ -33,34 +33,34 @@ contract Institution {
     }
 
     struct Certificate {
-        string Name;
-        uint256 Roll;
-        uint256 RegistrationNo;
-        uint256 SessionId;
-        uint256 ProgramId;
-        string IpfsUrl;
+        string name;
+        uint256 roll;
+        uint256 registrationNo;
+        uint256 sessionId;
+        uint256 programId;
+        string ipfsUrl;
         address Owner;
     }
 
     struct Application {
-        string Name;
-        uint256 Roll;
-        uint256 RegistrationNo;
-        uint256 SessionId;
-        uint256 ProgramId;
-        string IpfsUrl;
-        address Applicant;
-        bool Verified;
+        string name;
+        uint256 roll;
+        uint256 registrationNo;
+        uint256 sessionId;
+        uint256 programId;
+        string ipfsUrl;
+        address applicant;
+        bool verified;
     }
 
     struct Program {
-        string Name;
-        uint256 Duration;
+        string name;
+        uint256 duration;
     }
 
     struct Session {
-        uint256 StartTimestamp;
-        uint256 EndTimestamp;
+        uint256 startTimestamp;
+        uint256 endTimestamp;
     }
 
     mapping(address => bool) public InstitutionVerifiers;
@@ -131,21 +131,21 @@ contract Institution {
 
         Application memory application = applications[_applicationId];
 
-        if (application.Verified == true) {
+        if (application.verified == true) {
             revert AlreadyVerified();
         }
 
         totalCertificate++;
-        applicationPerWalletMapping[application.Applicant]--;
-        applications[_applicationId].Verified = true;
+        applicationPerWalletMapping[application.applicant]--;
+        applications[_applicationId].verified = true;
         certificates[totalCertificate] = Certificate(
-            application.Name,
-            application.Roll,
-            application.RegistrationNo,
-            application.SessionId,
-            application.ProgramId,
-            application.IpfsUrl,
-            application.Applicant
+            application.name,
+            application.roll,
+            application.registrationNo,
+            application.sessionId,
+            application.programId,
+            application.ipfsUrl,
+            application.applicant
         );
     }
 
