@@ -8,7 +8,6 @@ error InvalidProgram();
 error InvalidSession();
 error InvalidVerifier();
 error InvalidApplicationId();
-error ApplicationLimitExceeded();
 error ValueCanNotBeZero();
 error InvalidAddress();
 error InvalidIssuer();
@@ -80,6 +79,9 @@ contract Institution is IInstitution, Ownable {
     address payable public institutionWallet;
     address public controllerContractAddress;
 
+    uint256 public constant APPLICATION_FEE = 0.0006 ether;
+
+
     uint256 public totalProgram = 0;
     uint256 public totalSession = 0;
     uint256 public totalCertificate = 0;
@@ -93,8 +95,6 @@ contract Institution is IInstitution, Ownable {
     mapping(uint256 => Certificate) public certificates;
 
     mapping(uint256 => Program) public programs;
-
-    mapping(address => uint256) public applicationPerWalletMapping;
 
     constructor(
         address _issuerContractAddress,
@@ -120,12 +120,9 @@ contract Institution is IInstitution, Ownable {
             revert InvalidSession();
         }
 
-        if (applicationPerWalletMapping[msg.sender] == applicationperWallet) {
-            revert ApplicationLimitExceeded();
+        unchecked {
+            totalApplication++;
         }
-
-        applicationPerWalletMapping[msg.sender]++;
-        totalApplication++;
 
         applications[totalApplication] = Application(
             totalApplication,
@@ -154,9 +151,9 @@ contract Institution is IInstitution, Ownable {
         if (application.verified == true) {
             revert AlreadyVerified();
         }
-
-        totalCertificate++;
-        applicationPerWalletMapping[application.applicant]--;
+        unchecked {
+            totalCertificate++;
+        }
         applications[_applicationId].verified = true;
         certificates[totalCertificate] = Certificate(
             application.name,
@@ -176,7 +173,9 @@ contract Institution is IInstitution, Ownable {
         if (_startTimestamp >= _endTimestamp) {
             revert InvalidSession();
         }
-        totalSession++;
+        unchecked {
+            totalSession++;
+        }
 
         sessions[totalSession] = Session(_startTimestamp, _endTimestamp);
     }
@@ -186,7 +185,9 @@ contract Institution is IInstitution, Ownable {
         onlyIssuer(msg.sender)
         notZero(_duration)
     {
-        totalProgram++;
+        unchecked {
+            totalProgram++;
+        }
 
         programs[totalProgram] = Program(_name, _duration);
     }
