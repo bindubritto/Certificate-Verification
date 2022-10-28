@@ -39,7 +39,7 @@ module.exports = {
     runOnCompile: true,
     clear: true, // delete old files before export
     flat: true, // all abi json files directly under path
-    only: ['GachaDraw']
+    only: ['Institution']
   },
   networks: {
     hardhat: {},
@@ -61,7 +61,8 @@ module.exports = {
   etherscan: {
     apiKey: {
       mainnet: 'B5BJDZ526T7SINAJRN3TJ7FPU5KAJQACDS',
-      rinkeby: 'B5BJDZ526T7SINAJRN3TJ7FPU5KAJQACDS'
+      rinkeby: 'B5BJDZ526T7SINAJRN3TJ7FPU5KAJQACDS',
+      goerli: 'B5BJDZ526T7SINAJRN3TJ7FPU5KAJQACDS',
     }
   }
 }

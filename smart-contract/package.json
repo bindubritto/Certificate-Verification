@@ -5,7 +5,14 @@
   "license": "MIT",
   "scripts": {
     "compile": "npx hardhat compile",
-    "test": "npx hardhat coverage --network hardhat"
+    "test": "npx hardhat coverage --network hardhat",
+    "deploy:contract:hardhat": "npx hardhat run ./scripts/deploy.js --network hardhat",
+    "deploy:contract:goerli": "npx hardhat run ./scripts/deploy.js --network goerli",
+    "deploy:contract:rinkeby": "npx hardhat run ./scripts/deploy.js --network rinkeby",
+    "deploy:contract:mainnet": "npx hardhat run ./scripts/deploy.js --network mainnet",
+    "publish:contract:goerli": "npx hardhat verify --network goerli",
+    "publish:contract:rinkeby": "npx hardhat verify --network rinkeby",
+    "publish:contract:mainnet": "npx hardhat verify --network mainnet"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
