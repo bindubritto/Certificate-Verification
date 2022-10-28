@@ -15,8 +15,13 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
+
+  const _issuerContractAddress = "0x2C84a6BbA4D8B302032572427D72911A7128Df61"; 
+  const _institutionWallet = "0x2C84a6BbA4D8B302032572427D72911A7128Df61";
+
+
   const Institution = await hre.ethers.getContractFactory("Institution");
-  const institution = await Institution.deploy();
+  const institution = await Institution.deploy(_issuerContractAddress, _institutionWallet);
 
   await institution.deployed();
 
