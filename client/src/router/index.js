@@ -1,20 +1,31 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '../components/HelloWorld.vue'
-import GalaxyWorld from '../components/GalaxyWorld.vue'
+import HomeComponent from '../components/Home.vue'
+import VerifyMeta from '../components/VerifyMeta.vue'
+import DocumentComponent from '../components/Document.vue'
+
 Vue.use(Router)
 
 const  routes = [
     {
-      path: '/world',
-      name: 'World',
-      component: HelloWorld
+      path: '/home',
+      name: 'Home',
+      component: HomeComponent
     },
     {
-      path: '/galaxy',
-      name: 'Galaxy',
-      component: GalaxyWorld
-    }
+      path: '/upload-document',
+      name: 'Document-Upload',
+      component: DocumentComponent
+    },
+    {
+      path: '/verify',
+      name: 'Verify',
+      component: VerifyMeta
+    },
+    {
+      path :'*',
+      component:HomeComponent
+  }
   ]
 
 export default new Router({
