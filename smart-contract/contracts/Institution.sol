@@ -8,7 +8,6 @@ error InvalidProgram();
 error InvalidSession();
 error InvalidVerifier();
 error InvalidApplicationId();
-error ApplicationLimitExceeded();
 error ValueCanNotBeZero();
 error InvalidAddress();
 error InvalidIssuer();
@@ -78,14 +77,16 @@ contract Institution is IInstitution, Ownable {
     mapping(address => bool) public institutionVerifiers;
 
     address payable public institutionWallet;
+    address payable public withdrawalWallet;
+    
     address public controllerContractAddress;
+
+    uint256 public constant APPLICATION_FEE = 0.0006 ether;
 
     uint256 public totalProgram = 0;
     uint256 public totalSession = 0;
     uint256 public totalCertificate = 0;
     uint256 public totalApplication = 0;
-
-    uint256 public applicationperWallet = 10;
 
     mapping(uint256 => Session) public sessions;
 
@@ -94,14 +95,31 @@ contract Institution is IInstitution, Ownable {
 
     mapping(uint256 => Program) public programs;
 
-    mapping(address => uint256) public applicationPerWalletMapping;
-
     constructor(
         address _issuerContractAddress,
         address payable _institutionWallet
     ) {
         institutionWallet = payable(_institutionWallet);
         controllerContractAddress = _issuerContractAddress;
+        withdrawalWallet = payable(msg.sender);
+        
+    }
+
+    /// @notice Transfer balance on this contract to withdrawal address
+    function withdrawETH() external onlyOwner {
+        withdrawalWallet.transfer(address(this).balance);
+    }
+
+    /// @notice Set wallet address that can withdraw the balance
+    /// @dev Only owner of the contract can execute this function.
+    ///      The address should not be 0x0 or contract address
+    /// @param _wallet Any valid address
+    function setWithdrawWallet(address _wallet)
+        external
+        onlyOwner
+        validAddress(_wallet)
+    {
+        withdrawalWallet = payable(_wallet);
     }
 
     function applyForCertificate(
@@ -111,7 +129,7 @@ contract Institution is IInstitution, Ownable {
         uint256 _sessionId,
         uint256 _programId,
         string memory _ipfsUrl
-    ) external {
+    ) external payable {
         if (_programId < 1 || _programId > totalProgram) {
             revert InvalidProgram();
         }
@@ -120,12 +138,14 @@ contract Institution is IInstitution, Ownable {
             revert InvalidSession();
         }
 
-        if (applicationPerWalletMapping[msg.sender] == applicationperWallet) {
-            revert ApplicationLimitExceeded();
-        }
+        require(
+            msg.value == APPLICATION_FEE,
+            "insufficient or excess ETH provided."
+        );
 
-        applicationPerWalletMapping[msg.sender]++;
-        totalApplication++;
+        unchecked {
+            totalApplication++;
+        }
 
         applications[totalApplication] = Application(
             totalApplication,
@@ -154,9 +174,9 @@ contract Institution is IInstitution, Ownable {
         if (application.verified == true) {
             revert AlreadyVerified();
         }
-
-        totalCertificate++;
-        applicationPerWalletMapping[application.applicant]--;
+        unchecked {
+            totalCertificate++;
+        }
         applications[_applicationId].verified = true;
         certificates[totalCertificate] = Certificate(
             application.name,
@@ -176,7 +196,9 @@ contract Institution is IInstitution, Ownable {
         if (_startTimestamp >= _endTimestamp) {
             revert InvalidSession();
         }
-        totalSession++;
+        unchecked {
+            totalSession++;
+        }
 
         sessions[totalSession] = Session(_startTimestamp, _endTimestamp);
     }
@@ -186,7 +208,9 @@ contract Institution is IInstitution, Ownable {
         onlyIssuer(msg.sender)
         notZero(_duration)
     {
-        totalProgram++;
+        unchecked {
+            totalProgram++;
+        }
 
         programs[totalProgram] = Program(_name, _duration);
     }

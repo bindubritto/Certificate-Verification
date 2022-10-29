@@ -49,13 +49,17 @@ contract Controller is Ownable {
 
     mapping(address => bool) public moderators;
 
-    mapping(uint256 => InstitutionInfo) public InstitutionInfos;
+    mapping(uint256 => InstitutionInfo) public institutionInfos;
 
     constructor() {}
 
-    function addInstitution(address contractAddres,string memory name) external validModerator(msg.sender) validAddress(contractAddres) {
-        totalInstitution ++;
-        InstitutionInfos[totalInstitution] = InstitutionInfo (
+    function addInstitution(address contractAddres, string memory name)
+        external
+        validModerator(msg.sender)
+        validAddress(contractAddres)
+    {
+        totalInstitution++;
+        institutionInfos[totalInstitution] = InstitutionInfo(
             totalInstitution,
             contractAddres,
             name
@@ -112,5 +116,21 @@ contract Controller is Ownable {
         validAddress(_moderator)
     {
         moderators[_moderator] = false;
+    }
+
+    function getinstitutions()
+        public
+        view
+        returns (InstitutionInfo[] memory datas)
+    {
+        InstitutionInfo[] memory datas = new InstitutionInfo[](
+            totalInstitution
+        );
+
+        for (uint256 i = 1; i <= totalInstitution; i++) {
+            InstitutionInfo memory data = institutionInfos[i];
+            datas[i] = data;
+        }
+        return datas;
     }
 }
