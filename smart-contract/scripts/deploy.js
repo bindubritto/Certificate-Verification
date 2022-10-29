@@ -19,25 +19,27 @@ async function main() {
   // We get the contract to deploy
 
   if(CONTRACT == 'institute') {
-    const _issuerContractAddress = "0x2C84a6BbA4D8B302032572427D72911A7128Df61"; 
+    const _issuerContractAddress = "0xBe4c361C6F8973ee1d53d4339683413c4b4192A3"; 
     const _institutionWallet = "0x2C84a6BbA4D8B302032572427D72911A7128Df61";
 
     const Institution = await hre.ethers.getContractFactory("Institution");
     const institution = await Institution.deploy(_issuerContractAddress, _institutionWallet);
 
     await institution.deployed();
+    console.log("Institution deployed to:", institution.address);
   } 
 
   if(CONTRACT == 'controller') {
     const Controller = await hre.ethers.getContractFactory("Controller");
-    const controller = await Controller.deploy(_issuerContractAddress, _institutionWallet);
+    const controller = await Controller.deploy();
 
     await controller.deployed();
+    console.log("Institution deployed to:", controller.address);
   }
 
   
 
-  console.log("Institution deployed to:", institution.address);
+  //
 }
 
 // We recommend this pattern to be able to use async/await everywhere
