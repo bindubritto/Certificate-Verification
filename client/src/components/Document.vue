@@ -1,98 +1,67 @@
 <template>
   <div>
-    <div class="flex flex-col items-center justify-center pt-20">
+    <div class="w-full bg-indigo-300 py-4 flex items-center justify-center">
+      Your Wallet Address :
+      <p class="font-medium">{{ token }}</p>
+    </div>
+
+    <div  class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+      <button @click="goToDetails" class="border-gray-300 bg-green-300 w-1/2 p-2 rounded-full py-3 px-6 mt-8">
+        To See Your Previous Verified Certificate
+      </button>
+    </div>
+
+    <div class="flex flex-col items-center justify-center pt-10 h-screen bg-green-100">
       <div class="flex items-center justify-center text-3xl pb-10">
-        Upload Your Final Educational Certificate
+        Submit Your Educational Certificate
+      </div>
+      <div v-if="loading">
+        <vue-loaders-ball-beat color="red" scale="1"></vue-loaders-ball-beat>
+        <hr />
+        <vue-loaders name="ball-beat" color="red" scale="1"></vue-loaders>
       </div>
       <div class="w-full flex flex-col items-center justify-center">
         <form class="w-full" @submit="checkForm">
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-            <input
-              v-model="form.name"
-              type="text"
-              id="name"
-              name="name"
-              placeholder=" Enter your full name"
-              class="bg-gray-50 border border-gray-500 text-gray-900 w-1/2 mt-2 py-2"
-            />
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <input v-model="form.name" type="text" id="name" name="name" placeholder=" Enter your full name"
+              class="bg-gray-50 border border-gray-500 text-gray-900 w-1/2 mt-2 py-2" />
           </div>
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-            <input
-              v-model="form.roll"
-              type="text"
-              id="roll"
-              name="roll"
-              placeholder=" Enter your roll number"
-              class="bg-gray-50 border border-gray-500 text-gray-900 w-1/2 mt-2 py-2"
-            />
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <input v-model="form.roll" type="text" id="roll" name="roll" placeholder=" Enter your roll number"
+              class="bg-gray-50 border border-gray-500 text-gray-900 w-1/2 mt-2 py-2" />
           </div>
 
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-            <input
-              v-model="form.session"
-              type="text"
-              id="session"
-              name="session"
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <input v-model="form.session" type="text" id="session" name="session"
               placeholder=" Enter your session number"
-              class="bg-gray-50 border border-gray-500 text-gray-900 w-1/2 mt-2 py-2"
-            />
+              class="bg-gray-50 border border-gray-500 text-gray-900 w-1/2 mt-2 py-2" />
           </div>
 
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-          <v-select
-              v-model="form.program"
-              :options="programOption"
-              label="name"
-              @input="onProgramSelection"
-              class="pt-2 py-2 w-1/2"
-            ></v-select>
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <v-select v-model="form.program" :options="programOption" label="name" @input="onProgramSelection"
+              class="pt-2 py-2 w-1/2"></v-select>
           </div>
 
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-            <v-select
-              v-model="form.university_token"
-              :options="organizationOptions"
-              label="name"
-              @input="onOrgSelection"
-              class="pt-2 py-2 w-1/2"
-            ></v-select>
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <v-select v-model="form.university_token" :options="organizationOptions" label="name"
+              @input="onOrgSelection" class="pt-2 py-2 w-1/2"></v-select>
           </div>
 
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-            <input
-              type="file"
-              id="image"
-              name="image"
-              title=" "
-              class="border-gray-400 bg-gray-200 pt-2 py-2 w-1/2"
-              @change="handleUploadImage"
-            />
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <input type="file" id="image" name="image" title=" " class="border-gray-400 bg-gray-200 pt-2 py-2 w-1/2"
+              @change="handleUploadImage" />
           </div>
 
-          <div
-            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
-          >
-            <button
-              type="sumbit"
-              class="border-gray-300 bg-green-300 w-1/2 p-2 rounded-full py-3 px-6 mt-8"
-            >
+          <div class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
+            <button type="sumbit" class="border-gray-300 bg-green-300 w-1/2 p-2 rounded-full py-3 px-6 mt-8">
               Submit
             </button>
           </div>
         </form>
       </div>
+
+
+
     </div>
   </div>
 </template>
@@ -101,6 +70,7 @@
 import Form from "../utils/form";
 import makeRequest from "../utils/apiRequest";
 import getInstituteContract from "../utils/contract";
+import { WALLET_KEY } from "@/utils/constanst";
 
 export default {
   name: "DocumentComponent",
@@ -110,18 +80,39 @@ export default {
         name: null,
         roll: null,
         session: null,
-        program: 'Select Study Program',
-        university_token: 'Select University',
+        program: "Select Study Program",
+        university_token: "Select University",
         certificate_image: null,
       }),
+      loading: false,
+      token: null,
       certificateImage: null,
       selectedOrg: null,
       selectedProgram: null,
-      programOption: [{ id: 1, name: 'CSE'}, { id: 2, name: 'EEE'}, { id: 3, name: 'BlockChain'}, { id: 4, name: 'APPLIED MATH'}],
-      organizationOptions: [{ id: 1, name: 'MIT'}, { id: 2, name: 'STANFORD'}, { id: 3, name: 'HARVARD'}, { id: 4, name: 'OXFORD'}]
+      programOption: [
+        { id: 1, name: "CSE" },
+      ],
+      organizationOptions: [
+        { id: 1, name: "MIT" },
+      ],
     };
   },
+  mounted() {
+    this.token = this.getSavedState(WALLET_KEY);
+  },
   methods: {
+    getSavedState(key) {
+      const state = window.localStorage.getItem(key);
+
+      if (state) {
+        return JSON.parse(state);
+      }
+
+      return {
+        token: "",
+      };
+    },
+
     handleUploadImage(event) {
       const input = event.target.files[0];
       this.form.certificate_image = input;
@@ -143,23 +134,22 @@ export default {
     },
 
     onOrgSelection(data) {
-      if( typeof data === 'object' ) {
+      if (typeof data === "object") {
         this.selectedOrg = data;
       }
-      console.log('data', data);
     },
 
     onProgramSelection(data) {
-      if( typeof data === 'object' ) {
+      if (typeof data === "object") {
         this.selectedProgram = data;
       }
-      console.log('data', data);
     },
 
     async checkForm(event) {
+      // this.loading = true;
       event.preventDefault();
 
-      const filePostUrl = 'http://localhost:5000/api/v1/file'
+      const filePostUrl = process.env.VUE_APP_FILE_UPLOAD_URL;
 
       var formData = new FormData();
 
@@ -167,6 +157,9 @@ export default {
 
       formData.append("certificate", this.form.certificate_image);
       try {
+        this.loading = true;
+
+        // file uploading
         const result = await makeRequest({
           url: filePostUrl,
           method: "post",
@@ -175,120 +168,55 @@ export default {
             "Content-Type": "multipart/form-data",
           },
         });
+        this.loading = false;
         console.log(result);
 
         let certificate_url = result.data.filePath;
 
         let instituteContract = await getInstituteContract();
-        //let applicationperWallet = await instituteContract.applicationperWallet();
 
-        if (this.selectedOrg === null ) {
-          window.alert('Please select Your Organization');
+        if (this.selectedOrg === null) {
+          window.alert("Please select Your Organization");
           return;
         }
 
-        if (this.selectedProgram === null ) {
-          window.alert('Please select study program');
+        if (this.selectedProgram === null) {
+          window.alert("Please select study program");
           return;
         }
 
-        let transactionInformation = await instituteContract.applyForCertificate(
-          name,
-          roll,
-          session,
-          this.selectedProgram.id,
-          this.selectedOrg.id,
-          certificate_url
-        );
+        let transactionInformation =
+          await instituteContract.applyForCertificate(
+            name,
+            roll,
+            session,
+            this.selectedProgram.id,
+            this.selectedOrg.id,
+            certificate_url
+          );
 
-        console.log(transactionInformation)
+        this.loading = false;
+
+        console.log(transactionInformation);
+
+        const ethatScanUrl = `${process.env.VUE_APP_ETHERSCAN_BASE_URL}/${transactionInformation.hash}`;
+
+        window.open(ethatScanUrl, "_blank");
+
+        // this.$router.push({
+        //   name: "Document-Details",
+        //   info: transactionInformation
+        // });
       } catch (error) {
         console.log("error");
+        this.loading = false;
         throw error;
       }
-
-
-
-
-
-
-      //console.log(Number(applicationperWallet));
-
-      // const formData = new FormData();
-
-      // formData.append("name", this.form.name);
-      // formData.append("roll", this.form.roll);
-      // formData.append("session", this.form.session);
-      // formData.append("university_token", this.form.university_token);
-      // formData.append("certificate_image", this.form.certificate_image);
-      // try {
-      //   const result = await makeRequest({
-      //     url: process.env.VUE_APP_HERMES_API_BASE_URL,
-      //     method: "post",
-      //     data: formData,
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   });
-      //   console.log(result);
-      // } catch (error) {
-      //   console.log("error");
-      //   throw error;
-      // }
     },
 
-    // Example POST method implementation:
-    async checkFormx(event) {
-      event.preventDefault();
-
-      var formData = new FormData();
-
-      formData.append("name", this.form.name);
-      formData.append("roll", this.form.roll);
-      formData.append("session", this.form.session);
-      formData.append("university_token", this.form.university_token);
-      formData.append("certificate_image", this.form.certificate_image);
-
-      const response = await fetch(process.env.VUE_APP_HERMES_API_BASE_URL, {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          'Content-Type': "multipart/form-data"
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: formData // body data type must match "Content-Type" header
-      });
-      return response.json(); // parses JSON response into native JavaScript objects
+    goToDetails() {
+      console.log('clicked');
     },
-
-
-
-    // checkForm(event) {
-    //   event.preventDefault();
-
-    //   const formData = new FormData();
-
-    //   formData.append("name", this.form.name);
-    //   formData.append("roll", this.form.roll);
-    //   formData.append("session", this.form.session);
-    //   formData.append("university_token", this.form.university_token);
-    //   formData.append("certificate_image", this.form.certificate_image);
-
-    //   fetch('https://jsonplaceholder.typicode.com/posts', {
-    //     method: 'POST',
-    //     body: formData,
-    //     headers: {
-    //       'Content-type': 'application/x-www-form-urlencoded',
-    //     },
-    //   })
-    //     .then((response) => response.json())
-    //     .then((json) => console.log(json));
-
-    // }
   },
 };
 </script>
