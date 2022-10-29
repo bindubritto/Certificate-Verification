@@ -4,16 +4,34 @@ pragma solidity ^0.8.15;
 import "./IInstitution.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @dev Revert transaction for non-existing programID
 error InvalidProgram();
+
+/// @dev Revert transaction for non-existing sessionId
 error InvalidSession();
+
+/// @dev Revert transaction If annonymous wallet try to verify certificate
 error InvalidVerifier();
+
+/// @dev Revert transaction for non-existing applicationId
 error InvalidApplicationId();
+
+/// @dev Revert transaction for zero as input value
 error ValueCanNotBeZero();
+
+/// @dev Revert transaction for zero address or the address is this current smart contract
 error InvalidAddress();
+
+/// @dev Revert transaction for zero address or the address is this current smart contract
 error InvalidIssuer();
+
+/// @dev Revert transaction for duplicate varification
 error AlreadyVerified();
 
 contract Institution is IInstitution, Ownable {
+
+    /// @dev Revert transaction for zero address or the address is this current smart contract
+    /// @param _address wallet address to verify
     modifier validAddress(address _address) {
         if (_address == address(0) || _address == address(this)) {
             revert InvalidAddress();
@@ -21,6 +39,8 @@ contract Institution is IInstitution, Ownable {
         _;
     }
 
+    /// @dev Revert transaction for zero as input value
+    /// @param amount ammount to verify
     modifier notZero(uint256 amount) {
         if (amount == 0) {
             revert ValueCanNotBeZero();
@@ -28,6 +48,8 @@ contract Institution is IInstitution, Ownable {
         _;
     }
 
+    /// @dev Revert transaction If annonymous wallet try to verify certificate
+    /// @param _address wallet address to verify
     modifier validVarifier(address _address) {
         if (!institutionVerifiers[_address]) {
             revert InvalidVerifier();
@@ -35,6 +57,8 @@ contract Institution is IInstitution, Ownable {
         _;
     }
 
+    /// @dev Revert transaction If annonymous wallet try to verify certificate
+    /// @param _address wallet address to verify
     modifier onlyIssuer(address _address) {
         if (_address != controllerContractAddress) {
             revert InvalidVerifier();
@@ -42,6 +66,7 @@ contract Institution is IInstitution, Ownable {
         _;
     }
 
+    /// @dev Certificate data structure to store on chain
     struct Certificate {
         string name;
         uint256 roll;
@@ -52,6 +77,7 @@ contract Institution is IInstitution, Ownable {
         address owner;
     }
 
+    /// @dev Application data structure to store on chain
     struct Application {
         uint256 id;
         string name;
@@ -64,16 +90,19 @@ contract Institution is IInstitution, Ownable {
         bool verified;
     }
 
+    /// @dev Program data structure to store on chain
     struct Program {
         string name;
         uint256 duration;
     }
 
+    /// @dev Session data structure to store on chain
     struct Session {
         uint256 startTimestamp;
         uint256 endTimestamp;
     }
 
+    /// @dev Map for keeping the verifier for this institution
     mapping(address => bool) public institutionVerifiers;
 
     address payable public institutionWallet;
@@ -122,6 +151,14 @@ contract Institution is IInstitution, Ownable {
         withdrawalWallet = payable(_wallet);
     }
 
+    /// @notice Store application for certificate
+    /// @dev Anyone can apply paying the required gas price
+    /// @param _name Any valid address
+    /// @param _roll Any valid address
+    /// @param _registrationNo student registration no
+    /// @param _sessionId Admission sessionId
+    /// @param _programId program ID 
+    /// @param _ipfsUrl Certificate file URL
     function applyForCertificate(
         string memory _name,
         uint256 _roll,
@@ -160,6 +197,10 @@ contract Institution is IInstitution, Ownable {
         );
     }
 
+
+    /// @notice Verify perticular application as certificate
+    /// @dev Only whitelisted varifier will able to verify
+    /// @param _applicationId Application Id to verify
     function verifyCertificate(uint256 _applicationId)
         external
         validVarifier(msg.sender)
@@ -189,6 +230,10 @@ contract Institution is IInstitution, Ownable {
         );
     }
 
+    /// @notice add nee session for institute
+    /// @dev Only whitelisted issuer will able to add Sessions
+    /// @param _startTimestamp session start timestamp
+    /// @param _endTimestamp session end timestamp
     function addSessions(uint256 _startTimestamp, uint256 _endTimestamp)
         external
         onlyIssuer(msg.sender)
@@ -203,6 +248,10 @@ contract Institution is IInstitution, Ownable {
         sessions[totalSession] = Session(_startTimestamp, _endTimestamp);
     }
 
+    /// @notice add new program for the institute
+    /// @dev Only whitelisted issuer will able to add Sessions
+    /// @param _name program name
+    /// @param _duration program duration timestamp
     function addProgram(string memory _name, uint256 _duration)
         external
         onlyIssuer(msg.sender)
@@ -215,6 +264,9 @@ contract Institution is IInstitution, Ownable {
         programs[totalProgram] = Program(_name, _duration);
     }
 
+    /// @notice whitelist new wallet as verifier
+    /// @dev Only contract owner can add verifier
+    /// @param _verifier varifier wallet address
     function addVerifier(address _verifier)
         external
         validAddress(_verifier)
@@ -223,6 +275,9 @@ contract Institution is IInstitution, Ownable {
         institutionVerifiers[_verifier] = true;
     }
 
+    /// @notice remove varifier from whitelist
+    /// @dev Only contract owner can add verifier
+    /// @param _verifier varifier wallet address
     function removeVerifier(address _verifier)
         external
         validAddress(_verifier)
@@ -231,6 +286,9 @@ contract Institution is IInstitution, Ownable {
         institutionVerifiers[_verifier] = false;
     }
 
+    /// @notice whitelist issuer address
+    /// @dev Only contract owner can add verifier
+    /// @param _address issuer address
     function resetIssuerContractAddress(address _address)
         external
         onlyOwner
@@ -239,6 +297,9 @@ contract Institution is IInstitution, Ownable {
         controllerContractAddress = _address;
     }
 
+    /// @notice remove varifier from whitelist
+    /// @dev Only contract owner can add verifier
+    /// @param _address issuer address
     function resetInstitutionWallet(address _address)
         external
         onlyOwner
@@ -247,6 +308,7 @@ contract Institution is IInstitution, Ownable {
         institutionWallet = payable(_address);
     }
 
+    /// @notice readonly method for getting application information information
     function unverifiedApplications()
         public
         view
@@ -269,6 +331,8 @@ contract Institution is IInstitution, Ownable {
         return data;
     }
 
+    /// @notice readonly method for getting certificate information
+    /// @param _address address to query certificate
     function ownerOfCertificates(address _address)
         public
         view
