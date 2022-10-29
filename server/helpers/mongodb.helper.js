@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// We will move it env
 const url = 'mongodb+srv://hackathon-test:db-password@cluster0.cjlh2a2.mongodb.net/hackathon-test-db?retryWrites=true&w=majority'
 
 mongoose.connect(url)
