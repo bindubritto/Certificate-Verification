@@ -47,9 +47,23 @@
           <div
             class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
           >
+          <v-select
+              v-model="form.program"
+              :options="programOption"
+              label="name"
+              @input="onProgramSelection"
+              class="pt-2 py-2 w-1/2"
+            ></v-select>
+          </div>
+
+          <div
+            class="border-gray-300 w-full flex flex-col justify-center items-center mb-2"
+          >
             <v-select
               v-model="form.university_token"
-              :options="['RUET', 'KUET', 'CUET']"
+              :options="organizationOptions"
+              label="name"
+              @input="onOrgSelection"
               class="pt-2 py-2 w-1/2"
             ></v-select>
           </div>
@@ -85,7 +99,7 @@
 
 <script>
 import Form from "../utils/form";
-//import makeRequest from "../utils/apiRequest";
+import makeRequest from "../utils/apiRequest";
 import getInstituteContract from "../utils/contract";
 
 export default {
@@ -96,10 +110,15 @@ export default {
         name: null,
         roll: null,
         session: null,
-        university_token: null,
+        program: 'Select Study Program',
+        university_token: 'Select University',
         certificate_image: null,
       }),
       certificateImage: null,
+      selectedOrg: null,
+      selectedProgram: null,
+      programOption: [{ id: 1, name: 'CSE'}, { id: 2, name: 'EEE'}, { id: 3, name: 'BlockChain'}, { id: 4, name: 'APPLIED MATH'}],
+      organizationOptions: [{ id: 1, name: 'MIT'}, { id: 2, name: 'STANFORD'}, { id: 3, name: 'HARVARD'}, { id: 4, name: 'OXFORD'}]
     };
   },
   methods: {
@@ -123,22 +142,75 @@ export default {
       }
     },
 
+    onOrgSelection(data) {
+      if( typeof data === 'object' ) {
+        this.selectedOrg = data;
+      }
+      console.log('data', data);
+    },
+
+    onProgramSelection(data) {
+      if( typeof data === 'object' ) {
+        this.selectedProgram = data;
+      }
+      console.log('data', data);
+    },
+
     async checkForm(event) {
       event.preventDefault();
 
-      let instituteContract = await getInstituteContract();
-      //let applicationperWallet = await instituteContract.applicationperWallet();
+      const filePostUrl = 'http://localhost:5000/api/v1/file'
 
-      let transactionInformation = await instituteContract.applyForCertificate(
-        "Atiq Ahammed",
-        817,
-        12345,
-        1,
-        1,
-        "https://test.url.com"
-      );
+      var formData = new FormData();
 
-      console.log(transactionInformation)
+      let { name, roll, session } = this.form;
+
+      formData.append("certificate", this.form.certificate_image);
+      try {
+        const result = await makeRequest({
+          url: filePostUrl,
+          method: "post",
+          data: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        console.log(result);
+
+        let certificate_url = result.data.filePath;
+
+        let instituteContract = await getInstituteContract();
+        //let applicationperWallet = await instituteContract.applicationperWallet();
+
+        if (this.selectedOrg === null ) {
+          window.alert('Please select Your Organization');
+          return;
+        }
+
+        if (this.selectedProgram === null ) {
+          window.alert('Please select study program');
+          return;
+        }
+
+        let transactionInformation = await instituteContract.applyForCertificate(
+          name,
+          roll,
+          session,
+          this.selectedProgram.id,
+          this.selectedOrg.id,
+          certificate_url
+        );
+
+        console.log(transactionInformation)
+      } catch (error) {
+        console.log("error");
+        throw error;
+      }
+
+
+
+
+
 
       //console.log(Number(applicationperWallet));
 
