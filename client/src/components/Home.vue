@@ -1,7 +1,6 @@
 <template>
   <div class="hello">
     <div class="pt-10 flex flex-col">
-      <!-- <div class="bg-gray-300 text-3xl flex item-center justify-center pb-10">Verify</div> -->
       <div class="bg-gray-300 text-3xl flex item-center justify-center">Verify Your Educational Certificate to Avoid Future Hassle</div>
       <div class="flex item-center justify-center pt-20"><button @click="toMetaMask" class="bg-green-100" >Verify</button></div>
       

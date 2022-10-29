@@ -7,7 +7,7 @@
 
     <div  class="border-gray-300 w-full flex flex-col justify-center items-center mb-2">
       <button @click="goToDetails" class="border-gray-300 bg-green-300 w-1/2 p-2 rounded-full py-3 px-6 mt-8">
-        To See Your Previous Verified Certificate
+        To See Your Previously Verified Certificate
       </button>
     </div>
 
@@ -70,7 +70,7 @@
 import Form from "../utils/form";
 import makeRequest from "../utils/apiRequest";
 import getInstituteContract from "../utils/contract";
-import { WALLET_KEY } from "@/utils/constanst";
+import { BigNumber } from "ethers";
 
 export default {
   name: "DocumentComponent",
@@ -98,11 +98,11 @@ export default {
     };
   },
   mounted() {
-    this.token = this.getSavedState(WALLET_KEY);
+    this.token = this.getSavedState('token');
   },
   methods: {
-    getSavedState(key) {
-      const state = window.localStorage.getItem(key);
+    getSavedState() {
+      const state = window.localStorage.getItem('token');
 
       if (state) {
         return JSON.parse(state);
@@ -185,6 +185,9 @@ export default {
           return;
         }
 
+        let ether = BigNumber.from(600000000000000);
+        console.log('ether', ether);
+
         let transactionInformation =
           await instituteContract.applyForCertificate(
             name,
@@ -192,21 +195,28 @@ export default {
             session,
             this.selectedProgram.id,
             this.selectedOrg.id,
-            certificate_url
+            certificate_url,
+            {value: ether}
           );
 
         this.loading = false;
+        this.$notify({
+            group: 'foo',
+            title: 'Transaction Successful',
+            text: `Your certificate will pending for verify`
+          });
 
         console.log(transactionInformation);
 
         const ethatScanUrl = `${process.env.VUE_APP_ETHERSCAN_BASE_URL}/${transactionInformation.hash}`;
 
-        window.open(ethatScanUrl, "_blank");
 
-        // this.$router.push({
-        //   name: "Document-Details",
-        //   info: transactionInformation
-        // });
+        setTimeout(() => {
+          window.open(ethatScanUrl, "_blank");
+        }, 2000);
+
+
+        
       } catch (error) {
         console.log("error");
         this.loading = false;
@@ -215,7 +225,9 @@ export default {
     },
 
     goToDetails() {
-      console.log('clicked');
+      this.$router.push({
+          name: "Document-Details",
+        });
     },
   },
 };

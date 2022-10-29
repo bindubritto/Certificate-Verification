@@ -126,6 +126,7 @@
       },
 
       saveState(key, state) {
+        key = 'token';
         window.localStorage.setItem(key, JSON.stringify(state));
       }
     },
