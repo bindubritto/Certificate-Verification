@@ -10,6 +10,7 @@
   <script>
   
   import { ethers } from 'ethers';
+  import { WALLET_KEY } from '@/utils/constanst';
   
   export default {
 
@@ -17,7 +18,7 @@
     data() {
       return {
         metamaskEnabled: false,
-        tokenKey: 'token',
+        WALLET_KEY,
       }
     },
 
@@ -72,17 +73,6 @@
         } else {
           // if no window.ethereum then MetaMask is not installed
           window.alert('Metamast is not installed');
-          // toast(
-          //   'MetaMask is not installed. Please consider installing it: https://m...content-available-to-author-only...k.io/download.html',
-          //   {
-          //     position: 'top-left',
-          //     autoClose: 3000,
-          //     closeOnClick: true,
-          //     pauseOnHover: true,
-          //     type: 'info',
-          //     className: 'alert-strong-background',
-          //   }
-          // );
         }
       },
       
@@ -102,8 +92,15 @@
           const signer = provider.getSigner();
           const userAddress = await signer.getAddress();
           this.saveState(this.tokenKey, userAddress);
+
+          this.$notify({
+            group: 'foo',
+            title: 'Metamask Wallet Connected',
+            text: `Your wallet: ${userAddress}`
+          });
+
+
           console.log('userAddress', userAddress);
-          window.alert('Connected to Metamask');
 
           this.$router.push({
             name: 'Document-Upload',
