@@ -47,18 +47,41 @@ contract Controller is Ownable {
     IInstitution public institutionSc;
     uint256 public totalInstitution = 0;
 
+    address payable public withdrawalWallet;
+
     mapping(address => bool) public moderators;
 
     mapping(uint256 => InstitutionInfo) public institutionInfos;
 
-    constructor() {}
+    constructor() {
+        withdrawalWallet = payable(msg.sender);
+    }
+
+    /// @notice Transfer balance on this contract to withdrawal address
+    function withdrawETH() external onlyOwner {
+        withdrawalWallet.transfer(address(this).balance);
+    }
+
+    /// @notice Set wallet address that can withdraw the balance
+    /// @dev Only owner of the contract can execute this function.
+    ///      The address should not be 0x0 or contract address
+    /// @param _wallet Any valid address
+    function setWithdrawWallet(address _wallet)
+        external
+        onlyOwner
+        validAddress(_wallet)
+    {
+        withdrawalWallet = payable(_wallet);
+    }
 
     function addInstitution(address contractAddres, string memory name)
         external
         validModerator(msg.sender)
         validAddress(contractAddres)
     {
-        totalInstitution++;
+        unchecked {
+            totalInstitution++;
+        }
         institutionInfos[totalInstitution] = InstitutionInfo(
             totalInstitution,
             contractAddres,
@@ -127,8 +150,8 @@ contract Controller is Ownable {
             totalInstitution
         );
 
-        for (uint256 i = 1; i <= totalInstitution; i++) {
-            InstitutionInfo memory data = institutionInfos[i];
+        for (uint256 i = 0; i < totalInstitution; i++) {
+            InstitutionInfo memory data = institutionInfos[i+1];
             datas[i] = data;
         }
         return datas;

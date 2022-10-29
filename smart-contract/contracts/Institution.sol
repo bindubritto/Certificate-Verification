@@ -29,7 +29,6 @@ error InvalidIssuer();
 error AlreadyVerified();
 
 contract Institution is IInstitution, Ownable {
-
     /// @dev Revert transaction for zero address or the address is this current smart contract
     /// @param _address wallet address to verify
     modifier validAddress(address _address) {
@@ -107,7 +106,7 @@ contract Institution is IInstitution, Ownable {
 
     address payable public institutionWallet;
     address payable public withdrawalWallet;
-    
+
     address public controllerContractAddress;
 
     uint256 public constant APPLICATION_FEE = 0.0006 ether;
@@ -124,6 +123,23 @@ contract Institution is IInstitution, Ownable {
 
     mapping(uint256 => Program) public programs;
 
+    event ApplyForCertificate(
+        uint256 _id,
+        string _name,
+        uint256 _roll,
+        uint256 _registrationNo,
+        uint256 _sessionId,
+        uint256 _programId,
+        string _ipfsUrl,
+        address _owner
+    );
+
+    event VerifyCertificate(
+        uint256 _certificateId,
+        uint256 _applicationId,
+        address _verifier
+    );
+
     constructor(
         address _issuerContractAddress,
         address payable _institutionWallet
@@ -131,7 +147,6 @@ contract Institution is IInstitution, Ownable {
         institutionWallet = payable(_institutionWallet);
         controllerContractAddress = _issuerContractAddress;
         withdrawalWallet = payable(msg.sender);
-        
     }
 
     /// @notice Transfer balance on this contract to withdrawal address
@@ -157,7 +172,7 @@ contract Institution is IInstitution, Ownable {
     /// @param _roll Any valid address
     /// @param _registrationNo student registration no
     /// @param _sessionId Admission sessionId
-    /// @param _programId program ID 
+    /// @param _programId program ID
     /// @param _ipfsUrl Certificate file URL
     function applyForCertificate(
         string memory _name,
@@ -195,8 +210,17 @@ contract Institution is IInstitution, Ownable {
             msg.sender,
             false
         );
+        emit ApplyForCertificate(
+            totalApplication,
+            _name,
+            _roll,
+            _registrationNo,
+            _sessionId,
+            _programId,
+            _ipfsUrl,
+            msg.sender
+        );
     }
-
 
     /// @notice Verify perticular application as certificate
     /// @dev Only whitelisted varifier will able to verify
@@ -228,9 +252,11 @@ contract Institution is IInstitution, Ownable {
             application.ipfsUrl,
             application.applicant
         );
+
+        emit VerifyCertificate(totalCertificate, _applicationId, msg.sender);
     }
 
-    /// @notice add nee session for institute
+    /// @notice add new session for institute
     /// @dev Only whitelisted issuer will able to add Sessions
     /// @param _startTimestamp session start timestamp
     /// @param _endTimestamp session end timestamp
